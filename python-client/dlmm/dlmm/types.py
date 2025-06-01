@@ -244,11 +244,23 @@ class SwapQuote():
     bin_arrays_pubkey: List[Pubkey]
 
     def __init__(self, data: dict):
-        self.consumed_in_amount = int(data["consumedInAmount"])
-        self.out_amount = int(data["outAmount"])
-        self.fee = int(data["fee"])
-        self.protocol_fee = int(data["protocolFee"])
-        self.min_out_amount = int(data["minOutAmount"])
+        # Helper function to detect and convert hex values
+        def parse_int(val):
+            if isinstance(val, int):
+                return val
+            if isinstance(val, str):
+                # Check if string contains any hex characters (a-f)
+                if any(c in val.lower() for c in 'abcdef'):
+                    return int(val, 16)
+                else:
+                    return int(val, 10)
+            return int(val)
+        
+        self.consumed_in_amount = parse_int(data["consumedInAmount"])
+        self.out_amount = parse_int(data["outAmount"])
+        self.fee = parse_int(data["fee"])
+        self.protocol_fee = parse_int(data["protocolFee"])
+        self.min_out_amount = parse_int(data["minOutAmount"])
         self.price_impact = float(data["priceImpact"])
         self.bin_arrays_pubkey = list(map(lambda x: Pubkey.from_string(x), data["binArraysPubkey"]))
 
